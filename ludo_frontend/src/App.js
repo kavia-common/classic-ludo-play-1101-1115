@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { SoundProvider, useSound } from './services/SoundContext';
 import SetupScreen from './components/SetupScreen';
 import GameBoard from './components/GameBoard';
 import PlayerPanel from './components/PlayerPanel';
@@ -20,18 +21,18 @@ const SCREENS = {
   PLAYING: 'playing',
 };
 
-// PUBLIC_INTERFACE
 /**
- * Main App component for the Classic Ludo game.
+ * Inner game component that uses the sound context.
  * Manages game state transitions between setup and gameplay screens.
- * Uses a local game engine for pass-and-play mode.
  */
-function App() {
+function GameApp() {
   const [screen, setScreen] = useState(SCREENS.SETUP);
   const [gameState, setGameState] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [rolling, setRolling] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
+
+  const { playWin, playClick } = useSound();
 
   /**
    * Handle game start from the setup screen.
@@ -70,12 +71,15 @@ function App() {
 
       // Check for win condition
       if (newState.gameOver) {
-        setTimeout(() => setShowWinModal(true), 800);
+        setTimeout(() => {
+          playWin();
+          setShowWinModal(true);
+        }, 800);
       }
 
       setRolling(false);
     }, 600);
-  }, [gameState, rolling]);
+  }, [gameState, rolling, playWin]);
 
   /**
    * Handle token click for moving a token.
@@ -94,19 +98,23 @@ function App() {
 
     // Check for win condition
     if (newState.gameOver) {
-      setTimeout(() => setShowWinModal(true), 800);
+      setTimeout(() => {
+        playWin();
+        setShowWinModal(true);
+      }, 800);
     }
-  }, [gameState, validMoves]);
+  }, [gameState, validMoves, playWin]);
 
   /**
    * Handle starting a new game - returns to setup screen.
    */
   const handleNewGame = useCallback(() => {
+    playClick();
     setScreen(SCREENS.SETUP);
     setGameState(null);
     setValidMoves([]);
     setShowWinModal(false);
-  }, []);
+  }, [playClick]);
 
   /**
    * Close the win modal to continue viewing the board.
@@ -183,6 +191,20 @@ function App() {
         />
       )}
     </div>
+  );
+}
+
+// PUBLIC_INTERFACE
+/**
+ * Main App component for the Classic Ludo game.
+ * Wraps the game with SoundProvider for global sound mode.
+ * Sound is enabled by default across the entire application.
+ */
+function App() {
+  return (
+    <SoundProvider>
+      <GameApp />
+    </SoundProvider>
   );
 }
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import Dice from './Dice';
+import { useSound } from '../services/SoundContext';
 import './ActionBar.css';
 
 const COLOR_MAP = {
@@ -11,11 +12,20 @@ const COLOR_MAP = {
 
 // PUBLIC_INTERFACE
 /**
- * ActionBar component showing dice, turn message, and action controls.
+ * ActionBar component showing dice, turn message, sound toggle, and action controls.
  * @param {object} props - { message, diceValue, onRoll, canRoll, rolling, currentPlayer, onNewGame }
  */
 function ActionBar({ message, diceValue, onRoll, canRoll, rolling, currentPlayer, onNewGame }) {
   const playerColor = currentPlayer ? COLOR_MAP[currentPlayer.color] : '#B45309';
+  const { soundEnabled, toggleSound, playClick } = useSound();
+
+  /**
+   * Handle sound toggle with click feedback.
+   */
+  const handleSoundToggle = () => {
+    playClick();
+    toggleSound();
+  };
 
   return (
     <div className="action-bar" style={{ '--action-bar-accent': playerColor }}>
@@ -47,6 +57,16 @@ function ActionBar({ message, diceValue, onRoll, canRoll, rolling, currentPlayer
         <div className="action-message">
           <p className="action-message-text">{message}</p>
         </div>
+
+        {/* Sound toggle */}
+        <button
+          className={`sound-toggle-btn ${soundEnabled ? 'sound-on' : 'sound-off'}`}
+          onClick={handleSoundToggle}
+          title={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
+          aria-label={soundEnabled ? 'Mute sounds' : 'Enable sounds'}
+        >
+          {soundEnabled ? '🔊' : '🔇'}
+        </button>
 
         {/* New Game button */}
         <button className="new-game-btn" onClick={onNewGame} title="Start new game">

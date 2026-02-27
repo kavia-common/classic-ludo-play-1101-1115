@@ -21,12 +21,18 @@ export default [
         fetch: true,
         Set: true,
         Promise: true,
-        URL: true
+        URL: true,
+        AudioContext: true,
+        webkitAudioContext: true,
+        Date: true,
+        Math: true,
+        Object: true,
+        Array: true
       }
     },
     rules: {
       'no-unused-vars': ['error', { 
-        varsIgnorePattern: 'React|App|SCREENS',
+        varsIgnorePattern: 'React|App|SCREENS|GameApp',
         argsIgnorePattern: '^_'
       }]
     }

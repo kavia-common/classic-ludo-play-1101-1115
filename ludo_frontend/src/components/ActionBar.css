@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
   flex-wrap: wrap;
 }
@@ -29,6 +29,12 @@
   font-weight: 600;
   white-space: nowrap;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  animation: badgeFadeIn 0.3s ease;
+}
+
+@keyframes badgeFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .action-dice-area {
@@ -39,7 +45,7 @@
 
 .action-message {
   flex: 1;
-  min-width: 120px;
+  min-width: 100px;
   text-align: center;
 }
 
@@ -49,6 +55,45 @@
   color: #374151;
   margin: 0;
   line-height: 1.4;
+  animation: messageFadeIn 0.3s ease;
+}
+
+@keyframes messageFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sound-toggle-btn {
+  width: 38px;
+  height: 38px;
+  border: 2px solid #E5E7EB;
+  border-radius: 50%;
+  background: #F9FAFB;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.sound-toggle-btn:hover {
+  background: #F3F4F6;
+  border-color: #B45309;
+  transform: scale(1.08);
+}
+
+.sound-toggle-btn.sound-on {
+  border-color: #22C55E;
+  background: #F0FDF4;
+}
+
+.sound-toggle-btn.sound-off {
+  border-color: #EF4444;
+  background: #FEF2F2;
+  opacity: 0.8;
 }
 
 .new-game-btn {
@@ -83,5 +128,11 @@
   .new-game-btn {
     padding: 6px 10px;
     font-size: 0.7rem;
+  }
+
+  .sound-toggle-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
   }
 }

@@ -7,47 +7,86 @@
   background: transparent;
   cursor: default;
   z-index: 2;
-  transition: transform 0.3s ease;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .token-svg {
-  width: 85%;
-  height: 85%;
+  width: 90%;
+  height: 90%;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
 }
 
 .token-highlighted {
   cursor: pointer;
   z-index: 5;
-  animation: tokenBounce 0.8s infinite;
+  animation: tokenBounce 0.8s ease-in-out infinite;
 }
 
 .token-highlighted:hover {
-  transform: scale(1.25);
+  transform: scale(1.3);
+  filter: brightness(1.1);
 }
 
 .token-in-base .token-svg {
-  width: 75%;
-  height: 75%;
+  width: 80%;
+  height: 80%;
+}
+
+/* Step-by-step movement animation */
+.token-moving {
+  z-index: 10;
+  animation: tokenStep 0.18s ease-in-out;
 }
 
 .token-glow {
   position: absolute;
-  inset: -4px;
+  inset: -6px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(180, 83, 9, 0.4), transparent 70%);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.5), transparent 70%);
   pointer-events: none;
-  animation: glowPulse 1s infinite;
+  animation: glowPulse 1s ease-in-out infinite;
 }
 
 @keyframes tokenBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%, 100% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-3px) scale(1.05); }
+  50% { transform: translateY(-5px) scale(1.08); }
+  75% { transform: translateY(-3px) scale(1.05); }
+}
+
+@keyframes tokenStep {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-8px) scale(1.1); }
+  100% { transform: translateY(0) scale(1); }
 }
 
 @keyframes glowPulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* Token entrance animation for tokens leaving base */
+.token-enter-board {
+  animation: tokenEnterBoard 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tokenEnterBoard {
+  0% { transform: scale(0.3) translateY(10px); opacity: 0.3; }
+  60% { transform: scale(1.2) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Token reaching home celebration */
+.token-home-celebrate {
+  animation: tokenHomeCelebrate 0.6s ease-out;
+}
+
+@keyframes tokenHomeCelebrate {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.4) rotate(10deg); }
+  60% { transform: scale(0.9) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }

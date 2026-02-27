@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import Token from './Token';
+import { useSound } from '../services/SoundContext';
 import {
   getBoardCoordinates,
   getHomeStretchCoordinates,
@@ -12,6 +13,9 @@ const BOARD_SIZE = 15;
 // Safe square positions on the main track
 const SAFE_SQUARES = [0, 8, 13, 21, 26, 34, 39, 47];
 
+// Total squares on the main board track
+const MAIN_TRACK_SIZE = 52;
+
 /**
  * Determine the background color category of a cell on the 15x15 grid.
  * @param {number} row - Row index
@@ -21,7 +25,6 @@ const SAFE_SQUARES = [0, 8, 13, 21, 26, 34, 39, 47];
 function getCellType(row, col) {
   // Red base area (bottom-left): rows 9-14, cols 0-5
   if (row >= 9 && row <= 14 && col >= 0 && col <= 5) {
-    // Path cells within the red zone
     if ((row >= 9 && row <= 14 && col === 6) || (row === 8 && col >= 0 && col <= 5)) {
       return 'cell-path';
     }
@@ -44,13 +47,9 @@ function getCellType(row, col) {
     return 'cell-home-center';
   }
   // Home stretch cells
-  // Red home stretch: col 7, rows 9-13
   if (col === 7 && row >= 9 && row <= 13) return 'cell-red-stretch';
-  // Green home stretch: row 7, cols 1-5
   if (row === 7 && col >= 1 && col <= 5) return 'cell-green-stretch';
-  // Yellow home stretch: col 7, rows 1-5
   if (col === 7 && row >= 1 && row <= 5) return 'cell-yellow-stretch';
-  // Blue home stretch: row 7, cols 9-13
   if (row === 7 && col >= 9 && col <= 13) return 'cell-blue-stretch';
 
   return 'cell-path';
@@ -63,23 +62,178 @@ function getCellType(row, col) {
  * @returns {boolean}
  */
 function isBaseInterior(row, col) {
-  // Red base interior spots
   if ((row === 10 || row === 13) && (col === 1 || col === 4)) return true;
-  // Green base interior spots
   if ((row === 1 || row === 4) && (col === 1 || col === 4)) return true;
-  // Yellow base interior spots
   if ((row === 1 || row === 4) && (col === 10 || col === 13)) return true;
-  // Blue base interior spots
   if ((row === 10 || row === 13) && (col === 10 || col === 13)) return true;
   return false;
+}
+
+/**
+ * Check if a cell at (row, col) corresponds to a safe square on the path.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {boolean}
+ */
+function isSafeSquare(row, col) {
+  for (const pos of SAFE_SQUARES) {
+    const coord = getBoardCoordinates(pos);
+    if (coord.row === row && coord.col === col) return true;
+  }
+  return false;
+}
+
+/**
+ * Compute intermediate positions for step-by-step animation.
+ * @param {object} prevToken - Previous token state { state, position, homeStretchPos, stepsFromStart }
+ * @param {object} currToken - Current token state
+ * @param {string} color - Player color
+ * @param {number} startPos - Player start position on main track
+ * @returns {Array<{row, col}>} Array of intermediate grid coordinates
+ */
+function computeIntermediateSteps(prevToken, currToken, color, startPos) {
+  const steps = [];
+
+  // Token just left base -> only one step (start position)
+  if (prevToken.state === 'base' && currToken.state === 'active') {
+    return []; // No intermediate, just appear at start
+  }
+
+  // Token was active, now moved further
+  if (prevToken.state === 'active' && (currToken.state === 'active' || currToken.state === 'home')) {
+    const prevSteps = prevToken.stepsFromStart;
+    const currSteps = currToken.stepsFromStart;
+
+    for (let s = prevSteps + 1; s <= currSteps; s++) {
+      if (s > MAIN_TRACK_SIZE) {
+        // In home stretch
+        const hsPos = s - MAIN_TRACK_SIZE - 1;
+        if (hsPos >= 0 && hsPos < 5) {
+          const coord = getHomeStretchCoordinates(color, hsPos);
+          steps.push(coord);
+        }
+      } else {
+        // On main track
+        const boardPos = (startPos + s) % MAIN_TRACK_SIZE;
+        const coord = getBoardCoordinates(boardPos);
+        steps.push(coord);
+      }
+    }
+  }
+
+  return steps;
 }
 
 // PUBLIC_INTERFACE
 /**
  * GameBoard component rendering the 15x15 Ludo board with all tokens.
+ * Supports step-by-step token movement animation.
  * @param {object} props - { players, currentPlayerIndex, validMoves, onTokenClick, diceValue }
  */
 function GameBoard({ players, currentPlayerIndex, validMoves, onTokenClick, diceValue }) {
+  const { playTokenStep, playCapture, playExitBase, playHome } = useSound();
+  const [animatingTokenId, setAnimatingTokenId] = useState(null);
+  const [animationOverrides, setAnimationOverrides] = useState({});
+  const prevPlayersRef = useRef(null);
+  const animationInProgressRef = useRef(false);
+
+  // Detect token changes and trigger step-by-step animation
+  useEffect(() => {
+    if (!prevPlayersRef.current || animationInProgressRef.current) {
+      prevPlayersRef.current = players;
+      return;
+    }
+
+    const prevPlayers = prevPlayersRef.current;
+
+    // Find which token moved
+    for (let pi = 0; pi < players.length; pi++) {
+      const currPlayer = players[pi];
+      const prevPlayer = prevPlayers[pi];
+      if (!prevPlayer) continue;
+
+      for (let ti = 0; ti < currPlayer.tokens.length; ti++) {
+        const currToken = currPlayer.tokens[ti];
+        const prevToken = prevPlayer.tokens[ti];
+
+        // Check if this token changed
+        if (prevToken.state !== currToken.state ||
+            prevToken.position !== currToken.position ||
+            prevToken.homeStretchPos !== currToken.homeStretchPos) {
+
+          // Token left base
+          if (prevToken.state === 'base' && currToken.state === 'active') {
+            playExitBase();
+            setAnimatingTokenId(currToken.id);
+            setTimeout(() => setAnimatingTokenId(null), 400);
+            prevPlayersRef.current = players;
+            return;
+          }
+
+          // Token reached home
+          if (currToken.state === 'home' && prevToken.state !== 'home') {
+            playHome();
+            prevPlayersRef.current = players;
+            return;
+          }
+
+          // Token was sent back to base (captured)
+          if (currToken.state === 'base' && prevToken.state === 'active') {
+            playCapture();
+            prevPlayersRef.current = players;
+            return;
+          }
+
+          // Normal movement - animate step by step
+          if (prevToken.state === 'active' && currToken.state === 'active') {
+            const intermediateSteps = computeIntermediateSteps(
+              prevToken, currToken, currPlayer.color, currPlayer.startPos
+            );
+
+            if (intermediateSteps.length > 1) {
+              animationInProgressRef.current = true;
+
+              // Animate through each intermediate step
+              intermediateSteps.forEach((stepCoord, stepIdx) => {
+                setTimeout(() => {
+                  playTokenStep();
+                  setAnimatingTokenId(currToken.id);
+                  setAnimationOverrides(prev => ({
+                    ...prev,
+                    [currToken.id]: stepCoord,
+                  }));
+
+                  // Clear animation on last step
+                  if (stepIdx === intermediateSteps.length - 1) {
+                    setTimeout(() => {
+                      setAnimatingTokenId(null);
+                      setAnimationOverrides(prev => {
+                        const next = { ...prev };
+                        delete next[currToken.id];
+                        return next;
+                      });
+                      animationInProgressRef.current = false;
+                    }, 120);
+                  }
+                }, stepIdx * 150); // 150ms per step
+              });
+
+              prevPlayersRef.current = players;
+              return;
+            } else if (intermediateSteps.length === 1) {
+              // Single step move
+              playTokenStep();
+              setAnimatingTokenId(currToken.id);
+              setTimeout(() => setAnimatingTokenId(null), 200);
+            }
+          }
+        }
+      }
+    }
+
+    prevPlayersRef.current = players;
+  }, [players, playTokenStep, playCapture, playExitBase, playHome]);
+
   // Build a map of positions to tokens for efficient rendering
   const tokenPositions = useMemo(() => {
     const posMap = {};
@@ -89,7 +243,12 @@ function GameBoard({ players, currentPlayerIndex, validMoves, onTokenClick, dice
         let coord = null;
         let key = null;
 
-        if (token.state === 'base') {
+        // Check if there's an animation override for this token
+        const override = animationOverrides[token.id];
+        if (override) {
+          coord = override;
+          key = `anim_${override.row}_${override.col}`;
+        } else if (token.state === 'base') {
           coord = getBaseCoordinates(player.color, tokenIdx);
           key = `base_${coord.row}_${coord.col}`;
         } else if (token.state === 'active') {
@@ -101,7 +260,6 @@ function GameBoard({ players, currentPlayerIndex, validMoves, onTokenClick, dice
             key = `pos_${coord.row}_${coord.col}`;
           }
         } else if (token.state === 'home') {
-          // Tokens that reached home are shown in center
           coord = { row: 7, col: 7 };
           key = `home_${player.color}_${tokenIdx}`;
         }
@@ -122,12 +280,18 @@ function GameBoard({ players, currentPlayerIndex, validMoves, onTokenClick, dice
     });
 
     return posMap;
-  }, [players]);
+  }, [players, animationOverrides]);
 
   // Build set of valid token IDs for highlighting
   const validTokenIds = useMemo(() => {
     return new Set((validMoves || []).map(m => m.tokenId));
   }, [validMoves]);
+
+  // Memoize onTokenClick handlers
+  const handleTokenClick = useCallback((tokenId) => {
+    if (animationInProgressRef.current) return; // Block clicks during animation
+    onTokenClick(tokenId);
+  }, [onTokenClick]);
 
   // Render the grid
   const cells = [];
@@ -157,10 +321,11 @@ function GameBoard({ players, currentPlayerIndex, validMoves, onTokenClick, dice
               key={tokenData.id}
               color={tokenData.color}
               isHighlighted={validTokenIds.has(tokenData.id)}
-              onClick={() => onTokenClick(tokenData.id)}
+              onClick={() => handleTokenClick(tokenData.id)}
               isInBase={tokenData.state === 'base'}
               tokenIndex={i}
               stackCount={tokensHere.length > 1 ? tokensHere.length : 0}
+              isAnimating={animatingTokenId === tokenData.id}
             />
           ))}
         </div>
@@ -175,20 +340,6 @@ function GameBoard({ players, currentPlayerIndex, validMoves, onTokenClick, dice
       </div>
     </div>
   );
-}
-
-/**
- * Check if a cell at (row, col) corresponds to a safe square on the path.
- * @param {number} row - Row index
- * @param {number} col - Column index
- * @returns {boolean}
- */
-function isSafeSquare(row, col) {
-  for (const pos of SAFE_SQUARES) {
-    const coord = getBoardCoordinates(pos);
-    if (coord.row === row && coord.col === col) return true;
-  }
-  return false;
 }
 
 export default GameBoard;

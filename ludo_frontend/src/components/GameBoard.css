@@ -14,8 +14,10 @@
   gap: 1px;
   background: #1F2937;
   border: 3px solid #1F2937;
-  border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .board-cell {
@@ -25,6 +27,7 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
+  transition: background-color 0.2s ease;
 }
 
 /* Base quadrant colors */
@@ -44,26 +47,34 @@
   background: #DBEAFE;
 }
 
-/* Home stretch colors */
+/* Home stretch colors with subtle gradient */
 .cell-red-stretch {
-  background: #FECACA;
+  background: linear-gradient(135deg, #FECACA 0%, #FCA5A5 100%);
 }
 
 .cell-green-stretch {
-  background: #BBF7D0;
+  background: linear-gradient(135deg, #BBF7D0 0%, #86EFAC 100%);
 }
 
 .cell-yellow-stretch {
-  background: #FDE68A;
+  background: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%);
 }
 
 .cell-blue-stretch {
-  background: #BFDBFE;
+  background: linear-gradient(135deg, #BFDBFE 0%, #93C5FD 100%);
 }
 
-/* Center home */
+/* Center home with animated gradient */
 .cell-home-center {
   background: linear-gradient(135deg, #FCA5A5, #86EFAC, #FDE047, #93C5FD);
+  background-size: 200% 200%;
+  animation: homeGradientShift 4s ease infinite;
+}
+
+@keyframes homeGradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Path cells */
@@ -75,20 +86,21 @@
 /* Base token spots */
 .cell-base-spot {
   border-radius: 50%;
-  border: 2px solid rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(0, 0, 0, 0.12);
   margin: 2px;
 }
 
-/* Safe squares */
+/* Safe squares with subtle highlight */
 .cell-safe {
   background: #FFF7ED;
+  box-shadow: inset 0 0 0 1px rgba(180, 83, 9, 0.1);
 }
 
 .safe-star {
   position: absolute;
   font-size: 0.5em;
   color: #B45309;
-  opacity: 0.5;
+  opacity: 0.45;
   z-index: 1;
   pointer-events: none;
 }

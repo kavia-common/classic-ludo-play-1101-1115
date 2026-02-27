@@ -12,16 +12,16 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 14px;
 }
 
 .dice-button:hover:not(.dice-disabled) {
-  transform: scale(1.1);
+  transform: scale(1.12) rotate(-3deg);
 }
 
 .dice-button:active:not(.dice-disabled) {
-  transform: scale(0.95);
+  transform: scale(0.92);
 }
 
 .dice-disabled {
@@ -32,27 +32,40 @@
 .dice-face {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
 }
 
 .dice-rolling {
-  animation: diceRoll 0.6s ease-in-out;
+  animation: diceRoll 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes diceRoll {
   0% { transform: rotate(0deg) scale(1); }
-  20% { transform: rotate(90deg) scale(1.2); }
-  40% { transform: rotate(180deg) scale(0.9); }
-  60% { transform: rotate(270deg) scale(1.15); }
-  80% { transform: rotate(340deg) scale(1.05); }
-  100% { transform: rotate(360deg) scale(1); }
+  10% { transform: rotate(45deg) scale(1.15) translateY(-8px); }
+  25% { transform: rotate(135deg) scale(0.9) translateY(4px); }
+  40% { transform: rotate(225deg) scale(1.2) translateY(-12px); }
+  55% { transform: rotate(290deg) scale(0.95) translateY(2px); }
+  70% { transform: rotate(340deg) scale(1.1) translateY(-6px); }
+  85% { transform: rotate(355deg) scale(1.02) translateY(-1px); }
+  100% { transform: rotate(360deg) scale(1) translateY(0); }
+}
+
+/* Result reveal animation */
+.dice-result {
+  animation: diceReveal 0.3s ease-out;
+}
+
+@keyframes diceReveal {
+  0% { transform: scale(1.15); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
 }
 
 .dice-hint {
   font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
   color: #6B7280;
-  animation: pulse 1.5s infinite;
+  animation: hintPulse 1.5s ease-in-out infinite;
 }
 
 .dice-value {
@@ -60,9 +73,15 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: #1F2937;
+  animation: diceValuePop 0.3s ease-out;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes diceValuePop {
+  0% { opacity: 0; transform: translateY(4px) scale(0.8); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
