@@ -1,0 +1,108 @@
+.win-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+.win-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 3px solid #B45309;
+  animation: modalSlideIn 0.4s ease;
+}
+
+.win-confetti {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  animation: confettiBounce 1s infinite;
+}
+
+.win-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1F2937;
+  margin: 0 0 12px 0;
+}
+
+.win-player-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.win-message {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: #6B7280;
+  margin: 0 0 24px 0;
+}
+
+.win-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.win-new-game-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #B45309, #D97706);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3);
+}
+
+.win-new-game-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(180, 83, 9, 0.4);
+}
+
+.win-close-btn {
+  padding: 12px 24px;
+  border: 2px solid #E5E7EB;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #374151;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.win-close-btn:hover {
+  border-color: #9CA3AF;
+  background: #F9FAFB;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes confettiBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2) rotate(10deg); }
+}

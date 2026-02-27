@@ -1,0 +1,112 @@
+.game-board-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  grid-template-rows: repeat(15, 1fr);
+  width: min(85vw, 540px);
+  height: min(85vw, 540px);
+  gap: 1px;
+  background: #1F2937;
+  border: 3px solid #1F2937;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.board-cell {
+  position: relative;
+  background: #F9FAFB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+/* Base quadrant colors */
+.cell-red-base {
+  background: #FEE2E2;
+}
+
+.cell-green-base {
+  background: #DCFCE7;
+}
+
+.cell-yellow-base {
+  background: #FEF9C3;
+}
+
+.cell-blue-base {
+  background: #DBEAFE;
+}
+
+/* Home stretch colors */
+.cell-red-stretch {
+  background: #FECACA;
+}
+
+.cell-green-stretch {
+  background: #BBF7D0;
+}
+
+.cell-yellow-stretch {
+  background: #FDE68A;
+}
+
+.cell-blue-stretch {
+  background: #BFDBFE;
+}
+
+/* Center home */
+.cell-home-center {
+  background: linear-gradient(135deg, #FCA5A5, #86EFAC, #FDE047, #93C5FD);
+}
+
+/* Path cells */
+.cell-path {
+  background: #FFFFFF;
+  border: 0.5px solid #E5E7EB;
+}
+
+/* Base token spots */
+.cell-base-spot {
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  margin: 2px;
+}
+
+/* Safe squares */
+.cell-safe {
+  background: #FFF7ED;
+}
+
+.safe-star {
+  position: absolute;
+  font-size: 0.5em;
+  color: #B45309;
+  opacity: 0.5;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .game-board {
+    width: min(95vw, 360px);
+    height: min(95vw, 360px);
+  }
+
+  .safe-star {
+    font-size: 0.35em;
+  }
+}
+
+@media (max-width: 360px) {
+  .game-board {
+    width: 98vw;
+    height: 98vw;
+  }
+}

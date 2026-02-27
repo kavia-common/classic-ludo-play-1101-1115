@@ -14,13 +14,21 @@ export default [
         document: true,
         window: true,
         test: true,
-        expect: true
+        expect: true,
+        setTimeout: true,
+        console: true,
+        process: true,
+        fetch: true,
+        Set: true,
+        Promise: true,
+        URL: true
       }
     },
     rules: {
-
-     'no-unused-vars': ['error', { varsIgnorePattern: 'React|App' }]
-
+      'no-unused-vars': ['error', { 
+        varsIgnorePattern: 'React|App|SCREENS',
+        argsIgnorePattern: '^_'
+      }]
     }
   },
   pluginJs.configs.recommended,

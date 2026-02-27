@@ -1,0 +1,99 @@
+.player-panel {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 8px;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 2px solid #E5E7EB;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.player-info-active {
+  border-color: var(--player-color, #B45309);
+  background: linear-gradient(135deg, #ffffff 0%, rgba(180, 83, 9, 0.05) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.player-info-finished {
+  opacity: 0.7;
+}
+
+.player-color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.player-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.player-tokens-status {
+  display: flex;
+  gap: 6px;
+  font-size: 0.7rem;
+}
+
+.player-tokens-status span {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  color: #6B7280;
+}
+
+.turn-indicator {
+  color: var(--player-color, #B45309);
+  font-weight: bold;
+  font-size: 1rem;
+  animation: blink 1s infinite;
+}
+
+.finished-badge {
+  background: #0F766E;
+  color: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@media (max-width: 480px) {
+  .player-info {
+    min-width: 100px;
+    padding: 6px 10px;
+  }
+
+  .player-name {
+    font-size: 0.7rem;
+  }
+}
